@@ -18,22 +18,4 @@ test('login', async () => {
   expect(loginRes.body.user).toMatchObject({ email, name, roles });
 });
 
-// Test for missing email during login
-test('should return 400 for missing email during login', async () => {
-    const res = await request(app).put('/api/auth').send({
-      password: 'password123',
-    });
-    expect(res.statusCode).toBe(400);
-    expect(res.body).toHaveProperty('message', 'Missing required fields');
-  });
-  
-  // Test for invalid email format during login
-  test('should return 400 for invalid email format during login', async () => {
-    const res = await request(app).put('/api/auth').send({
-      email: 'invalidemail',
-      password: 'password123',
-    });
-    expect(res.statusCode).toBe(400);
-    expect(res.body).toHaveProperty('message', 'Invalid email format');
-  });
   

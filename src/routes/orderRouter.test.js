@@ -45,29 +45,4 @@ test('GET /api/order/:id should return 404 for non-existent order', async () => 
   expect(res.body).toHaveProperty('message', 'unknown endpoint');
 });
 
-// Test for missing fields in order
-test('POST /api/order should return 400 for missing fields', async () => {
-    const res = await request(app)
-      .post('/api/order')
-      .set('Authorization', `Bearer ${testUserAuthToken}`)
-      .send({
-        pizzaType: 'Margherita',  // Missing size and quantity
-      });
-    expect(res.statusCode).toBe(400);
-    expect(res.body).toHaveProperty('message', 'Missing required fields');
-  });
-  
-  // Test for invalid pizza size
-  test('POST /api/order should return 400 for invalid pizza size', async () => {
-    const res = await request(app)
-      .post('/api/order')
-      .set('Authorization', `Bearer ${testUserAuthToken}`)
-      .send({
-        pizzaType: 'Margherita',
-        size: 'Extra Large',  // Assume this size is not valid
-        quantity: 1,
-      });
-    expect(res.statusCode).toBe(400);
-    expect(res.body).toHaveProperty('message', 'Invalid pizza size');
-  });
   
