@@ -37,4 +37,21 @@ describe('Service.js API Endpoints', () => {
     const res = await request(app).get('/api/order');
     expect(res.statusCode).toBe(401);
   });
+  describe('Service.js Middleware and Headers', () => {
+    // Test CORS headers
+    test('should include correct Access-Control headers', async () => {
+      const res = await request(app).get('/');
+      expect(res.headers).toHaveProperty('access-control-allow-origin', '*');
+      expect(res.headers).toHaveProperty('access-control-allow-methods');
+    });
+  
+    // Test 500 error handling with middleware
+    test('should return 500 and error message for thrown errors', async () => {
+      const res = await request(app)
+        .get('/api/order')
+        .set('Authorization', 'Bearer invalidToken'); // Simulate a bad request
+      expect(res.statusCode).toBe(500);
+      expect(res.body).toHaveProperty('message');
+    });
+  });
 });
