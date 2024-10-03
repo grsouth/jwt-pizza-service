@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('./service'); // Assuming your routes are registered here
+const app = require('../service'); // Assuming your routes are registered here
 
 describe('Auth Router', () => {
   // Test for a successful login

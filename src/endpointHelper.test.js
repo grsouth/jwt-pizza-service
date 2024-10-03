@@ -1,21 +1,39 @@
-const { someHelperFunction } = require('./endpointHelper');
+const { asyncHandler, StatusCodeError } = require('./endpointHelper');
 
 describe('Endpoint Helper', () => {
-  // Test for a successful condition
-  test('someHelperFunction should handle valid input', () => {
-    const result = someHelperFunction('validInput');
-    expect(result).toBe('expectedOutput');
+  // Test for StatusCodeError
+  test('StatusCodeError should correctly set message and statusCode', () => {
+    const error = new StatusCodeError('Not Found', 404);
+    expect(error.message).toBe('Not Found');
+    expect(error.statusCode).toBe(404);
   });
 
-  // Test for invalid input
-  test('someHelperFunction should handle invalid input', () => {
-    const result = someHelperFunction('invalidInput');
-    expect(result).toBe('errorOutput');
+  // Test for asyncHandler with successful execution
+  test('asyncHandler should execute the function successfully', async () => {
+    const mockFn = jest.fn((req, res) => res.status(200).json({ success: true }));
+    const req = {}; // Mock request object
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+    const next = jest.fn();
+
+    await asyncHandler(mockFn)(req, res, next);
+    
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ success: true });
   });
 
-  // Test for edge case (e.g., empty input)
-  test('someHelperFunction should return null for empty input', () => {
-    const result = someHelperFunction('');
-    expect(result).toBeNull();
+  // Test for asyncHandler with error handling
+  test('asyncHandler should pass errors to next middleware', async () => {
+    const error = new Error('Test Error');
+    const mockFn = jest.fn().mockRejectedValue(error);
+    const req = {}; // Mock request object
+    const res = {};
+    const next = jest.fn();
+
+    await asyncHandler(mockFn)(req, res, next);
+    
+    expect(next).toHaveBeenCalledWith(error);
   });
 });
