@@ -1,7 +1,5 @@
 const request = require('supertest');
-const jwt = require('jsonwebtoken');
 const app = require('../service');
-const { jwtSecret } = require('../config');
 
 const testUser = { name: 'order diner', email: 'order@test.com', password: 'a' };
 let testUserAuthToken;
@@ -32,7 +30,7 @@ test('POST /api/order should return 400 for invalid pizza size', async () => {
     .set('Authorization', `Bearer ${testUserAuthToken}`)
     .send({
       pizzaType: 'Margherita',
-      size: 'Extra Large',  // Assume this size is not valid
+      size: 'Extra Large',  // Invalid size
       quantity: 1,
     });
   expect(res.statusCode).toBe(400);

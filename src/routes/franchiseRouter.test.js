@@ -1,8 +1,6 @@
 const request = require('supertest');
-const jwt = require('jsonwebtoken');
 const app = require('../service');
 const { DB, Role } = require('../database/database');
-const { jwtSecret } = require('../config');
 
 let adminAuthToken;
 
@@ -34,7 +32,7 @@ test('POST /api/franchise should return 400 for missing fields', async () => {
     .post('/api/franchise')
     .set('Authorization', `Bearer ${adminAuthToken}`)
     .send({
-      location: 'City Center',  // Missing 'name' field
+      location: 'City Center',
     });
   expect(res.statusCode).toBe(400);
   expect(res.body).toHaveProperty('message', 'Missing required fields');
@@ -42,7 +40,7 @@ test('POST /api/franchise should return 400 for missing fields', async () => {
 
 test('PUT /api/franchise/:id should return 404 for non-existent franchise', async () => {
   const res = await request(app)
-    .put('/api/franchise/999')  // Non-existent franchise ID
+    .put('/api/franchise/999')
     .set('Authorization', `Bearer ${adminAuthToken}`)
     .send({
       name: 'Nonexistent Franchise',
