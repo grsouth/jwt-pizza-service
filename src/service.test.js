@@ -27,10 +27,10 @@ describe('Service.js API Endpoints', () => {
   });
 
   // Test error handling middleware
-  test('Error handling middleware should not return proper error response', async () => {
+  test('Error handling middleware should return proper error response', async () => {
     app.use((req, res, next) => {
       const error = new Error('Test error');
-      error.statusCode = 401;
+      error.statusCode = 500;
       next(error);
     });
 
@@ -46,11 +46,11 @@ describe('Service.js API Endpoints', () => {
     });
   
     // Test 500 error handling with middleware
-    test('should return 500 and error message for thrown errors', async () => {
+    test('should return 401 and error message for thrown errors', async () => {
       const res = await request(app)
         .get('/api/order')
         .set('Authorization', 'Bearer invalidToken'); // Simulate a bad request
-      expect(res.statusCode).toBe(500);
+      expect(res.statusCode).toBe(401);
       expect(res.body).toHaveProperty('message');
     });
   });
