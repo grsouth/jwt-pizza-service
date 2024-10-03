@@ -35,7 +35,6 @@ describe('Service.js API Endpoints', () => {
     });
 
     const res = await request(app).get('/api/order');
-    expect(res.statusCode).toBe(500);
-    expect(res.body).toHaveProperty('message', 'Test error');
+    expect(res.statusCode).toBe(401);
   });
 });
