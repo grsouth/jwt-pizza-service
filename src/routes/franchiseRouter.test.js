@@ -1,3 +1,7 @@
+const request = require('supertest');  // Import Supertest to handle requests
+const app = require('../service');     // Make sure to adjust the path to point to your Express app
+
+
 describe('Franchise Router', () => {
     // Test for creating a new franchise
     test('POST /api/franchise should create a new franchise', async () => {

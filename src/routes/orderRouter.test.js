@@ -1,3 +1,7 @@
+const request = require('supertest');  // Import Supertest to handle requests
+const app = require('../service');     // Make sure to adjust the path to point to your Express app
+
+
 describe('Order Router', () => {
     // Test for creating an order successfully
     test('POST /api/order should create a new order', async () => {
