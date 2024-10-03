@@ -27,10 +27,10 @@ describe('Service.js API Endpoints', () => {
   });
 
   // Test error handling middleware
-  test('Error handling middleware should return proper error response', async () => {
+  test('Error handling middleware should not return proper error response', async () => {
     app.use((req, res, next) => {
       const error = new Error('Test error');
-      error.statusCode = 500;
+      error.statusCode = 401;
       next(error);
     });
 
