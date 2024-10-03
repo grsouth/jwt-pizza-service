@@ -54,4 +54,10 @@ describe('Service.js API Endpoints', () => {
       expect(res.body).toHaveProperty('message');
     });
   });
+  test('should return 404 for unknown routes', async () => {
+    const res = await request(app).get('/nonexistent-route');
+    expect(res.statusCode).toBe(404);
+    expect(res.body).toHaveProperty('message', 'unknown endpoint');
+  });
+  
 });
