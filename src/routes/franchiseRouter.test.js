@@ -49,3 +49,29 @@ test('PUT /api/franchise/:id should return 404 for non-existent franchise', asyn
   expect(res.statusCode).toBe(404);
   expect(res.body).toHaveProperty('message', 'unknown endpoint');
 });
+
+// Test for missing name field in franchise
+test('POST /api/franchise should return 400 for missing name field', async () => {
+    const res = await request(app)
+      .post('/api/franchise')
+      .set('Authorization', `Bearer ${adminAuthToken}`)
+      .send({
+        location: 'City Center',  // Missing name field
+      });
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toHaveProperty('message', 'Missing required fields');
+  });
+  
+  // Test for non-existent franchise ID
+  test('PUT /api/franchise/:id should return 404 for non-existent franchise', async () => {
+    const res = await request(app)
+      .put('/api/franchise/9999')  // Non-existent franchise ID
+      .set('Authorization', `Bearer ${adminAuthToken}`)
+      .send({
+        name: 'Updated Franchise',
+        location: 'City Center',
+      });
+    expect(res.statusCode).toBe(404);
+    expect(res.body).toHaveProperty('message', 'Franchise not found');
+  });
+  
