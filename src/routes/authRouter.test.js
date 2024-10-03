@@ -1,28 +1,21 @@
 const request = require('supertest');
-const app = require('../service');  // Adjust the path as necessary
+const app = require('../service');
 
-describe('Auth Router', () => {
-  // Test for missing fields during login
-  test('POST /api/auth/login should return 400 for missing fields', async () => {
-    const res = await request(app)
-      .post('/api/auth/login')
-      .send({
-        username: '',  // Missing username
-        password: 'password123',
-      });
-    expect(res.statusCode).toBe(400);
-    expect(res.body).toHaveProperty('message', 'Missing required fields');
-  });
+const testUser = { name: 'pizza diner', email: 'reg@test.com', password: 'a' };
+let testUserAuthToken;
 
-  // Test for invalid login credentials
-  test('POST /api/auth/login should return 401 for invalid credentials', async () => {
-    const res = await request(app)
-      .post('/api/auth/login')
-      .send({
-        username: 'invalidUser',
-        password: 'wrongPassword',
-      });
-    expect(res.statusCode).toBe(401);
-    expect(res.body).toHaveProperty('message', 'Invalid credentials');
-  });
+beforeAll(async () => {
+  // Generate a random test email for each run
+  testUser.email = Math.random().toString(36).substring(2, 12) + '@test.com';
+  const registerRes = await request(app).post('/api/auth').send(testUser);
+  testUserAuthToken = registerRes.body.token;
+});
+
+test('login', async () => {
+  const loginRes = await request(app).put('/api/auth').send(testUser);
+  expect(loginRes.status).toBe(200);
+  expect(loginRes.body.token).toMatch(/^[a-zA-Z0-9\-_]*\.[a-zA-Z0-9\-_]*\.[a-zA-Z0-9\-_]*$/);
+
+  const { password, ...user } = { ...testUser, roles: [{ role: 'diner' }] };
+  expect(loginRes.body.user).toMatchObject(user);
 });
