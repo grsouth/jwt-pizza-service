@@ -1,5 +1,4 @@
 const os = require('os');
-const { performance } = require('perf_hooks');
 
 let requestCounts = {
   GET: 0,
@@ -95,23 +94,68 @@ function resetMetrics() {
   };
 }
 
-function sendMetricsPeriodically(period) {
-    const timer = setInterval(() => {
-      try {
-        const buf = new MetricBuilder();
-        httpMetrics(buf);
-        systemMetrics(buf);
-        userMetrics(buf);
-        purchaseMetrics(buf);
-        authMetrics(buf);
-  
-        const metrics = buf.toString('\n');
-        this.sendMetricToGrafana(metrics);
-      } catch (error) {
-        console.log('Error sending metrics', error);
-      }
-    }, period);
+class MetricBuilder {
+  constructor() {
+    this.metrics = [];
   }
+
+  addMetric(name, value) {
+    this.metrics.push(`${name} ${value}`);
+  }
+
+  toString(separator = '\n') {
+    return this.metrics.join(separator);
+  }
+}
+
+function httpMetrics(buf) {
+  buf.addMetric('http_requests_total', requestCounts.total);
+  buf.addMetric('http_requests_get', requestCounts.GET);
+  buf.addMetric('http_requests_post', requestCounts.POST);
+  buf.addMetric('http_requests_put', requestCounts.PUT);
+  buf.addMetric('http_requests_delete', requestCounts.DELETE);
+}
+
+function systemMetrics(buf) {
+  buf.addMetric('cpu_usage_percentage', getCpuUsagePercentage());
+  buf.addMetric('memory_usage_percentage', getMemoryUsagePercentage());
+}
+
+function userMetrics(buf) {
+  buf.addMetric('active_users', activeUsers.size);
+}
+
+function purchaseMetrics(buf) {
+  buf.addMetric('pizzas_sold', pizzaMetrics.sold);
+  buf.addMetric('pizza_creation_failures', pizzaMetrics.creationFailures);
+  buf.addMetric('revenue', pizzaMetrics.revenue);
+}
+
+function authMetrics(buf) {
+  buf.addMetric('auth_attempts_successful', authAttempts.successful);
+  buf.addMetric('auth_attempts_failed', authAttempts.failed);
+}
+
+function sendMetricsPeriodically(period) {
+  setInterval(() => {
+    try {
+      const buf = new MetricBuilder();
+      httpMetrics(buf);
+      systemMetrics(buf);
+      userMetrics(buf);
+      purchaseMetrics(buf);
+      authMetrics(buf);
+
+      const metrics = buf.toString('\n');
+      console.log('Metrics:', metrics);
+      // Replace this with actual code to send metrics to Grafana
+      // this.sendMetricToGrafana(metrics);
+      resetMetrics();
+    } catch (error) {
+      console.log('Error sending metrics', error);
+    }
+  }, period);
+}
 
 module.exports = {
   requestTracker,

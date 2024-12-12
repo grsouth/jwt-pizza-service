@@ -1,6 +1,5 @@
 // src/middleware/metricsMiddleware.js
 const os = require('os');
-const { performance } = require('perf_hooks');
 
 let requestCounts = {
   GET: 0,

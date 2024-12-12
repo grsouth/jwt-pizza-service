@@ -89,7 +89,7 @@ authRouter.put(
       metrics.authTracker(true);
       metrics.trackActiveUser(user.id);
       res.json({ token, user });
-    } catch (error) {
+    } catch {
       metrics.authTracker(false);
       throw new StatusCodeError('Authentication failed', 401);
     }
