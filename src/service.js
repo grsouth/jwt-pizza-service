@@ -4,9 +4,11 @@ const orderRouter = require('./routes/orderRouter.js');
 const franchiseRouter = require('./routes/franchiseRouter.js');
 const version = require('./version.json');
 const config = require('./config.js');
+const metrics = require('./middleware/metricsMiddleware');
 
 const app = express();
 app.use(express.json());
+app.use(metrics.requestTracker);
 app.use(setAuthUser);
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
@@ -41,6 +43,12 @@ app.use('*', (req, res) => {
   res.status(404).json({
     message: 'unknown endpoint',
   });
+});
+
+// Endpoint to get metrics
+app.get('/metrics', (req, res) => {
+  res.json(metrics.getMetrics());
+  metrics.resetMetrics();
 });
 
 // Default error handler for all exceptions and errors.

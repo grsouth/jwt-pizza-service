@@ -1,8 +1,9 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const config = require('../config.js');
-const { asyncHandler } = require('../endpointHelper.js');
+const { asyncHandler, StatusCodeError } = require('../endpointHelper.js');
 const { DB, Role } = require('../database/database.js');
+const metrics = require('../middleware/metricsMiddleware');
 
 const authRouter = express.Router();
 
@@ -82,9 +83,16 @@ authRouter.put(
   '/',
   asyncHandler(async (req, res) => {
     const { email, password } = req.body;
-    const user = await DB.getUser(email, password);
-    const auth = await setAuth(user);
-    res.json({ user: user, token: auth });
+    try {
+      const user = await DB.getUser(email, password);
+      const token = await DB.loginUser(user.id);
+      metrics.authTracker(true);
+      metrics.trackActiveUser(user.id);
+      res.json({ token, user });
+    } catch (error) {
+      metrics.authTracker(false);
+      throw new StatusCodeError('Authentication failed', 401);
+    }
   })
 );
 
