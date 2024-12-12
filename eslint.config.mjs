@@ -7,3 +7,4 @@ export default [
   { languageOptions: { globals: globals.jest } },
   pluginJs.configs.recommended,
 ];
+//
