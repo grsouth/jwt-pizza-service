@@ -3,7 +3,7 @@ const config = require('../config.js');
 const { Role, DB } = require('../database/database.js');
 const { authRouter } = require('./authRouter.js');
 const { asyncHandler, StatusCodeError } = require('../endpointHelper.js');
-const metrics = require('../middleware/metricsMiddleware');
+const metrics = require('../metrics.js');
 
 const orderRouter = express.Router();
 
@@ -81,7 +81,7 @@ orderRouter.post(
     const orderReq = req.body;
     try {
       const order = await DB.addDinerOrder(req.user, orderReq);
-      metrics.trackPizzaSold();
+      metrics.trackPizzaSold(orderReq.items.reduce((acc, item) => acc + item.price, 0));
       res.status(201).json(order);
     } catch (error) {
       metrics.trackPizzaCreationFailure();

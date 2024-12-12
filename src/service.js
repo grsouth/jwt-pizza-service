@@ -57,4 +57,6 @@ app.use((err, req, res, next) => {
   next();
 });
 
+metrics.sendMetricsPeriodically(60000); // Send metrics every minute
+
 module.exports = app;

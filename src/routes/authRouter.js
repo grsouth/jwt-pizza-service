@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../config.js');
 const { asyncHandler, StatusCodeError } = require('../endpointHelper.js');
 const { DB, Role } = require('../database/database.js');
-const metrics = require('../middleware/metricsMiddleware');
+const metrics = require('../metrics.js');
 
 const authRouter = express.Router();
 
