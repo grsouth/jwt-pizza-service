@@ -136,48 +136,45 @@ function authMetrics(buf) {
   buf.addMetric('auth_attempts_failed', authAttempts.failed);
 }
 
+const config = {
+  source: process.env.GRAFANA_SOURCE,
+  userId: process.env.GRAFANA_USER_ID,
+  url: process.env.GRAFANA_URL,
+  apiKey: process.env.GRAFANA_API_KEY,
+};
+
+async function sendMetricToGrafana(metrics) {
+  try {
+    const response = await axios.post(config.url, metrics, {
+      headers: {
+        'Content-Type': 'text/plain',
+        'Authorization': `Bearer ${config.apiKey}`,
+      },
+    });
+    console.log('Metrics sent to Grafana:', response.status);
+  } catch (error) {
+    console.error('Error sending metrics to Grafana:', error);
+  }
+}
+
 function sendMetricsPeriodically(period) {
-    const timer = setInterval(() => {
-      try {
-        const buf = new MetricBuilder();
-        httpMetrics(buf);
-        systemMetrics(buf);
-        userMetrics(buf);
-        purchaseMetrics(buf);
-        authMetrics(buf);
-  
-        const metrics = buf.toString('\n');
-        this.sendMetricToGrafana(metrics);
-      } catch (error) {
-        console.log('Error sending metrics', error);
-      }
-    }, period);
-  }
+  setInterval(async () => {
+    try {
+      const buf = new MetricBuilder();
+      httpMetrics(buf);
+      systemMetrics(buf);
+      userMetrics(buf);
+      purchaseMetrics(buf);
+      authMetrics(buf);
 
-class Metrics {
-  constructor() {
-    this.config = require('./config.json');
-  }
-
-  sendMetricToGrafana(metricPrefix, httpMethod, metricName, metricValue) {
-    const metric = `${metricPrefix},source=${this.config.source},method=${httpMethod} ${metricName}=${metricValue}`;
-
-    fetch(`${this.config.url}`, {
-      method: 'post',
-      body: metric,
-      headers: { Authorization: `Bearer ${this.config.userId}:${this.config.apiKey}` },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          console.error('Failed to push metrics data to Grafana');
-        } else {
-          console.log(`Pushed ${metric}`);
-        }
-      })
-      .catch((error) => {
-        console.error('Error pushing metrics:', error);
-      });
-  }
+      const metrics = buf.toString('\n');
+      console.log('Metrics:', metrics);
+      await sendMetricToGrafana(metrics);
+      resetMetrics();
+    } catch (error) {
+      console.log('Error sending metrics', error);
+    }
+  }, period);
 }
 
 module.exports = {
@@ -189,5 +186,4 @@ module.exports = {
   getMetrics,
   resetMetrics,
   sendMetricsPeriodically,
-  Metrics,
 };
