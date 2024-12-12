@@ -83,7 +83,7 @@ orderRouter.post(
       const order = await DB.addDinerOrder(req.user, orderReq);
       metrics.trackPizzaSold(orderReq.items.reduce((acc, item) => acc + item.price, 0));
       res.status(201).json(order);
-    } catch (error) {
+    } catch {
       metrics.trackPizzaCreationFailure();
       throw new StatusCodeError('Failed to create order', 500);
     }
