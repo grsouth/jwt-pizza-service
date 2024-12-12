@@ -137,25 +137,22 @@ function authMetrics(buf) {
 }
 
 function sendMetricsPeriodically(period) {
-  setInterval(() => {
-    try {
-      const buf = new MetricBuilder();
-      httpMetrics(buf);
-      systemMetrics(buf);
-      userMetrics(buf);
-      purchaseMetrics(buf);
-      authMetrics(buf);
-
-      const metrics = buf.toString('\n');
-      console.log('Metrics:', metrics);
-      // Replace this with actual code to send metrics to Grafana
-      // this.sendMetricToGrafana(metrics);
-      resetMetrics();
-    } catch (error) {
-      console.log('Error sending metrics', error);
-    }
-  }, period);
-}
+    const timer = setInterval(() => {
+      try {
+        const buf = new MetricBuilder();
+        httpMetrics(buf);
+        systemMetrics(buf);
+        userMetrics(buf);
+        purchaseMetrics(buf);
+        authMetrics(buf);
+  
+        const metrics = buf.toString('\n');
+        this.sendMetricToGrafana(metrics);
+      } catch (error) {
+        console.log('Error sending metrics', error);
+      }
+    }, period);
+  }
 
 module.exports = {
   requestTracker,
