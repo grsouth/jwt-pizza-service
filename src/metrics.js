@@ -1,4 +1,5 @@
 const os = require('os');
+const https = require('https');
 
 let requestCounts = {
   GET: 0,
@@ -144,17 +145,33 @@ const config = {
 };
 
 async function sendMetricToGrafana(metrics) {
-  try {
-    const response = await axios.post(config.url, metrics, {
-      headers: {
-        'Content-Type': 'text/plain',
-        'Authorization': `Bearer ${config.apiKey}`,
-      },
+  const data = metrics;
+  const options = {
+    hostname: new URL(config.url).hostname,
+    path: new URL(config.url).pathname,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'text/plain',
+      'Authorization': `Bearer ${config.apiKey}`,
+    },
+  };
+
+  const req = https.request(options, (res) => {
+    let response = '';
+    res.on('data', (chunk) => {
+      response += chunk;
     });
-    console.log('Metrics sent to Grafana:', response.status);
-  } catch (error) {
+    res.on('end', () => {
+      console.log('Metrics sent to Grafana:', res.statusCode);
+    });
+  });
+
+  req.on('error', (error) => {
     console.error('Error sending metrics to Grafana:', error);
-  }
+  });
+
+  req.write(data);
+  req.end();
 }
 
 function sendMetricsPeriodically(period) {
