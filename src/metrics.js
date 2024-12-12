@@ -1,5 +1,11 @@
 const os = require('os');
 const https = require('https');
+const path = require('path');
+const fs = require('fs');
+
+// Read config.json
+const configPath = path.join(__dirname, 'config.json');
+const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 
 let requestCounts = {
   GET: 0,
@@ -136,13 +142,6 @@ function authMetrics(buf) {
   buf.addMetric('auth_attempts_successful', authAttempts.successful);
   buf.addMetric('auth_attempts_failed', authAttempts.failed);
 }
-
-const config = {
-  source: process.env.GRAFANA_SOURCE,
-  userId: process.env.GRAFANA_USER_ID,
-  url: process.env.GRAFANA_URL,
-  apiKey: process.env.GRAFANA_API_KEY,
-};
 
 async function sendMetricToGrafana(metrics) {
   const data = metrics;
